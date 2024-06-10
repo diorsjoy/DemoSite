@@ -7,40 +7,35 @@ pipeline {
 
     stages {
         stage('Checkout') {
-    steps {
-        // Ensure the repository is cloned into the workspace
-        checkout([
-            $class: 'GitSCM',
-            branches: [[name: '*/develop-6.2.x']], // Update branch name here
-            doGenerateSubmoduleConfigurations: false,
-            extensions: [],
-            userRemoteConfigs: [[
-                url: 'https://github.com/diorsjoy/DemoSite.git',
-                refspec: '+refs/heads/develop-6.2.x:refs/remotes/origin/develop-6.2.x' // Update refspec if necessary
-            ]]
-        ])
-    }
-}
-        stage('Maven Install') {
-    agent {
-        docker {
-            image 'maven:3.5.0'
-            // Mount the jenkins_home directory to /certs/client inside the container
-            args '-v /var/jenkins_home:/certs/client'
+            steps {
+                // Ensure the repository is cloned into the workspace
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/develop-6.2.x']], // Update branch name here
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/diorsjoy/DemoSite.git',
+                        refspec: '+refs/heads/develop-6.2.x:refs/remotes/origin/develop-6.2.x' // Update refspec if necessary
+                    ]]
+                ])
+            }
         }
-    }
-    steps {
-        sh 'mvn clean install'
-    }
-}
 
-    steps {
-        sh 'mvn clean install'
-    }
-}
+        stage('Maven Install') {
+            agent {
+                docker {
+                    image 'maven:3.5.0'
+                    // Mount the jenkins_home directory to /certs/client inside the container
+                    args '-v /var/jenkins_home:/certs/client'
+                }
+            }
+            steps {
+                sh 'mvn clean install'
+            }
+        }
 
         stage('Build') {
-            agent any // Use any available agent for this stage
             steps {
                 echo "Building the project.."
                 sh 'mvn clean install -DskipTests'
@@ -48,7 +43,6 @@ pipeline {
         }
 
         stage('Test') {
-            agent any // Use any available agent for this stage
             steps {
                 echo "Running tests.."
                 sh 'mvn test'
@@ -56,7 +50,6 @@ pipeline {
         }
 
         stage('Package') {
-            agent any // Use any available agent for this stage
             steps {
                 echo 'Packaging the application..'
                 sh 'mvn package'
@@ -64,7 +57,6 @@ pipeline {
         }
 
         stage('Deploy') {
-            agent any // Use any available agent for this stage
             steps {
                 echo 'Deploying the application..'
                 sh 'cp target/DemoSite.war /home/jenkins/'
