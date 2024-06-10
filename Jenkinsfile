@@ -25,10 +25,15 @@ pipeline {
     agent {
         docker {
             image 'maven:3.5.0'
-            // Specify Docker configuration
-            args '-v /var/jenkins_home/'
+            // Mount the jenkins_home directory to /certs/client inside the container
+            args '-v /var/jenkins_home:/certs/client'
         }
     }
+    steps {
+        sh 'mvn clean install'
+    }
+}
+
     steps {
         sh 'mvn clean install'
     }
