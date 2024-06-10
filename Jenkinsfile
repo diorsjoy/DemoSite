@@ -22,15 +22,17 @@ pipeline {
     }
 }
         stage('Maven Install') {
-            agent {
-                docker {
-                    image 'maven:3.5.0'
-                }
-            }
-            steps {
-                sh 'mvn clean install'
-            }
+    agent {
+        docker {
+            image 'maven:3.5.0'
+            // Specify Docker configuration
+            args '-v /var/jenkins_home/'
         }
+    }
+    steps {
+        sh 'mvn clean install'
+    }
+}
 
         stage('Build') {
             agent any // Use any available agent for this stage
