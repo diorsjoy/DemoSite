@@ -1,17 +1,20 @@
 pipeline {
-   environment {
-        JAVA_TOOL_OPTIONS = "-Duser.home=/home/jenkins"
-    }
-   agent {
-        node {
-            label 'docker-agent-maven'
-        }
-    }
+  agent none
 
     triggers {
         pollSCM('H/5 * * * *') // Poll the SCM every 5 minutes
     }
     stages {
+       stage('Maven Install') {
+      agent {
+        docker {
+          image 'maven:3.5.0'
+        }
+      }
+      steps {
+        sh 'mvn clean install'
+      }
+    }
         stage('Checkout') {
             steps {
                 // Ensure the repository is cloned into the workspace
