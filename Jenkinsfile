@@ -1,14 +1,16 @@
 pipeline {
-    agent any
-
-    tools {
-        maven "3.6.0" // You need to add a maven with name "3.6.0" in the Global Tools Configuration page
+   environment {
+        JAVA_TOOL_OPTIONS = "-Duser.home=/home/jenkins"
     }
+    agent {
+        dockerfile {
+            label "docker"
+            args "-v /tmp/maven:/home/jenkins/.m2 -e MAVEN_CONFIG=/home/jenkins/.m2"
+        }
+    }
+
     triggers {
         pollSCM('H/5 * * * *') // Poll the SCM every 5 minutes
-    }
-    environment {
-        MAVEN_OPTS = "-Xmx2g"
     }
     stages {
         stage('Checkout') {
