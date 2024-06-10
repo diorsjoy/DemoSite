@@ -7,22 +7,20 @@ pipeline {
 
     stages {
         stage('Checkout') {
-            agent any // Use any available agent for this stage
-            steps {
-                // Ensure the repository is cloned into the workspace
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: '*/develop-6.2.x']],
-                    doGenerateSubmoduleConfigurations: false,
-                    extensions: [],
-                    userRemoteConfigs: [[
-                        url: 'https://github.com/diorsjoy/DemoSite.git',
-                        refspec: '+refs/heads/main:refs/remotes/origin/main'
-                    ]]
-                ])
-            }
-        }
-
+    steps {
+        // Ensure the repository is cloned into the workspace
+        checkout([
+            $class: 'GitSCM',
+            branches: [[name: '*/develop-6.2.x']], // Update branch name here
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [],
+            userRemoteConfigs: [[
+                url: 'https://github.com/diorsjoy/DemoSite.git',
+                refspec: '+refs/heads/develop-6.2.x:refs/remotes/origin/develop-6.2.x' // Update refspec if necessary
+            ]]
+        ])
+    }
+}
         stage('Maven Install') {
             agent {
                 docker {
