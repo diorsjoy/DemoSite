@@ -14,7 +14,15 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Ensure the repository is cloned into the workspace
-                checkout scm
+                checkout([
+                    $class: 'GitSCM',
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/BroadleafCommerce/DemoSite.git',
+                        refspec: '+refs/heads/*:refs/remotes/origin/*'
+                    ]]
+                ])
             }
         }
         stage('Build') {
@@ -44,10 +52,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying the application..'
-                // Add deployment steps here
-                // For example, copy the packaged .war file to a deployment directory or server
                 sh '''
-                cp target/DemoSite.war /home/jenkins
+                cp target/DemoSite.war 
                 '''
             }
         }
