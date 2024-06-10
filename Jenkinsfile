@@ -1,11 +1,9 @@
 pipeline {
-   agent { //here we select only docker build agents
-            docker {
-                image 'maven:latest' //container will start from this image
-                args '-v /root/.m2:/root/.m2' //here you can map local maven repo, this let you to reuse local artifacts
-            }
+    agent {
+        node {
+            label 'docker-agent-maven'
         }
-    
+    }
     triggers {
         pollSCM('H/5 * * * *') // Poll the SCM every 5 minutes
     }
@@ -18,11 +16,12 @@ pipeline {
                 // Ensure the repository is cloned into the workspace
                 checkout([
                     $class: 'GitSCM',
+                    branches: [[name: '*/develop-6.2.x']],
                     doGenerateSubmoduleConfigurations: false,
                     extensions: [],
                     userRemoteConfigs: [[
-                        url: 'https://github.com/BroadleafCommerce/DemoSite.git',
-                        refspec: '+refs/heads/*:refs/remotes/origin/*'
+                        url: 'https://github.com/diorsjoy/DemoSite.git',
+                        refspec: '+refs/heads/main:refs/remotes/origin/main'
                     ]]
                 ])
             }
@@ -30,13 +29,11 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Building the project.."
-                sh 'mvn -B -DskipTests clean package' //this command will be executed inside maven container
                 sh '''
                 mvn clean install -DskipTests
                 '''
             }
         }
-       
         stage('Test') {
             steps {
                 echo "Running tests.."
@@ -57,7 +54,7 @@ pipeline {
             steps {
                 echo 'Deploying the application..'
                 sh '''
-                cp target/DemoSite.war 
+                cp target/DemoSite.war /home/jenkins/
                 '''
             }
         }
